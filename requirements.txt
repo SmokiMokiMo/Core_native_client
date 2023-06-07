@@ -1,0 +1,11 @@
+PyAutoGUI~=0.9.53
+selenium~=4.9.1
+pytest~=7.2.1
+pytest-ordering~=0.6
+allure-pytest~=2.12.0
+pytesseract~=0.3.10
+pytest-allure-adaptor~=1.7.10
+allure-python-commons~=2.12.0
+opencv-python~=4.7.0.72
+#cv2
+numpy
