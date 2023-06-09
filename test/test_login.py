@@ -4,6 +4,8 @@ from Base import Base
 import time
 import pytest
 import allure
+
+
 class Auth(Base):
 
     def __init__(self, file_name: Tuple[str, ...]="auth.png") -> None:
@@ -56,6 +58,17 @@ class TestAuth:
         if not TestAuth.reg:
             TestAuth.reg = Auth()
         self.reg = TestAuth.reg
+
+    @pytest.fixture(autouse=True)
+    def setup(self, request):
+        # Start video recording before each test method
+        recording, thread = self.reg.start_video_recording(request.node.name)
+
+        try:
+            yield  # Execute the test method
+        finally:
+            # Stop video recording after each test method
+            self.reg.stop_video_recording(recording, thread)
 
 
     @allure.story("launch the application and check if it has started")

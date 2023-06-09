@@ -4,7 +4,7 @@ from Base import Base
 from typing import Optional, Tuple
 import allure
 import pytest
-from pytest_video import video_recorder
+
 
 class UpdateApp(Base):
 

@@ -1,4 +1,4 @@
-import multiprocessing
+import threading
 import re
 import datetime
 import subprocess
@@ -67,7 +67,7 @@ class Base:
 
         # Add video parameters         
         self.format = "avi"
-        self.fps = 30
+        self.fps = 10
         self.width = 1920
         self.height = 1080
         self.path_to_videos = "/home/user/PycharmProjects/Test_Native_Client/allure_video"
@@ -373,7 +373,11 @@ class Base:
         file_name_video = f"{file_name}_{timestamp}.{self.format}"
 
         # Set the screen recording parameters
-        self.width, self.height = pyautogui.size()        
+        self.width, self.height = pyautogui.size()    
+
+        # Create the directory if it doesn't exist
+        if not os.path.exists(self.path_to_videos):
+            os.makedirs(self.path_to_videos)    
 
         # Create video writer object
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
@@ -389,24 +393,27 @@ class Base:
         except Exception as e:
             print(f"Error occurred during video release: {str(e)}")
 
-    def record_video(self, file_name: str, delay: float):
-        recording = self.screen_record(file_name)
+    def record_video(self, file_name: str, recording):        
         while True:
             img = pyautogui.screenshot()
             frame = np.array(img)
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             recording.write(frame)
-            time.sleep(delay)
+            time.sleep(0.1)
 
-    def start_video_recording(self, file_name: str, duration: int, delay: float):
-        process = multiprocessing.Process(target=self.record_video, args=(file_name, delay))
-        process.start()
+    def start_video_recording(self, file_name: str):
+        self.recording = self.screen_record(file_name)
+        self.thread = threading.Thread(target=self.record_video, args=(file_name, self.recording))
+        self.thread.start()
 
-        # Sleep for some time to allow video recording
-        time.sleep(duration)
+        return self.recording, self.thread
+    
+    def stop_video_recording(self, recording, thread):
+        # Stop the video recording
+        self.stop_recording(recording)
 
-        # Terminate the process
-        process.terminate()
+        # Wait for the thread to finish
+        self.thread.join()
 
     def boosteroidAuth(self, file_name: tuple[str, str] = None, credentials=None) -> bool:
         try:
@@ -465,5 +472,7 @@ class Base:
         return True
 
 
-recorder = Base()
-recorder.start_video_recording("proba", duration=10, delay=1.5)
+
+
+
+
