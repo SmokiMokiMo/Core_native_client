@@ -1,9 +1,0 @@
-venv
-venv/*
-.idea/
-.git
-__pycache__
-test/__pycache__/
-logs/
-logs_test/
-screenshot/

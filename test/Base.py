@@ -1,3 +1,4 @@
+import multiprocessing
 import re
 import datetime
 import subprocess
@@ -65,7 +66,7 @@ class Base:
         #self.path_to_images: str = "/home/user/PycharmProjects/Test_Native_Client/images/login"
 
         # Add video parameters         
-        self.format = "flv"
+        self.format = "avi"
         self.fps = 30
         self.width = 1920
         self.height = 1080
@@ -367,9 +368,9 @@ class Base:
         self.logger.info("Screenshot saved to: '%s'", screenshot_path)
         return screenshot_path
     
-    def screean_record(self, file_name: str):
+    def screen_record(self, file_name: str):
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        file_name_video = f"{file_name}_{timestamp}.avi"
+        file_name_video = f"{file_name}_{timestamp}.{self.format}"
 
         # Set the screen recording parameters
         self.width, self.height = pyautogui.size()        
@@ -381,9 +382,31 @@ class Base:
         return out
 
     def stop_recording(self, out):
-        # Release the video writer
-        out.release()
-        cv2.destroyAllWindows()
+        try:
+            # Release the video writer
+            out.release()
+            cv2.destroyAllWindows()
+        except Exception as e:
+            print(f"Error occurred during video release: {str(e)}")
+
+    def record_video(self, file_name: str, delay: float):
+        recording = self.screen_record(file_name)
+        while True:
+            img = pyautogui.screenshot()
+            frame = np.array(img)
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            recording.write(frame)
+            time.sleep(delay)
+
+    def start_video_recording(self, file_name: str, duration: int, delay: float):
+        process = multiprocessing.Process(target=self.record_video, args=(file_name, delay))
+        process.start()
+
+        # Sleep for some time to allow video recording
+        time.sleep(duration)
+
+        # Terminate the process
+        process.terminate()
 
     def boosteroidAuth(self, file_name: tuple[str, str] = None, credentials=None) -> bool:
         try:
@@ -441,7 +464,6 @@ class Base:
         self.logger.info(f"\033[32m'Click_write_or_findAndWait' successful\033[0m")
         return True
 
+
 recorder = Base()
-recording = recorder.screean_record("proba")
-time.sleep(5)
-recorder.stop_recording(recording)
+recorder.start_video_recording("proba", duration=10, delay=1.5)
