@@ -1,7 +1,7 @@
-import threading
 import re
 import datetime
 import subprocess
+import threading
 import numpy as np
 import pyautogui
 import time
@@ -63,11 +63,13 @@ class Base:
         self.bin_app_path: str = ("/opt/BoosteroidGamesS.R.L./bin/Boosteroid")
         self.screenshot_directory: str = "/home/user/PycharmProjects/Test_Native_Client/screenshot"
         self.config_file_path: str = '/home/user/.config/Boosteroid Games S.R.L./Boosteroid.conf'        
-        #self.path_to_images: str = "/home/user/PycharmProjects/Test_Native_Client/images/login"
-
-        # Add video parameters         
+        
+        # Add video parameters 
+        self.threads = [] 
+        self.recording_thread = None
+        self.test_complete = False   
         self.format = "avi"
-        self.fps = 10
+        self.fps = 3
         self.width = 1920
         self.height = 1080
         self.path_to_videos = "/home/user/PycharmProjects/Test_Native_Client/allure_video"
@@ -368,53 +370,7 @@ class Base:
         self.logger.info("Screenshot saved to: '%s'", screenshot_path)
         return screenshot_path
     
-    def screen_record(self, file_name: str):
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        file_name_video = f"{file_name}_{timestamp}.{self.format}"
-
-        # Set the screen recording parameters
-        self.width, self.height = pyautogui.size()    
-
-        # Create the directory if it doesn't exist
-        if not os.path.exists(self.path_to_videos):
-            os.makedirs(self.path_to_videos)    
-
-        # Create video writer object
-        fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        out = cv2.VideoWriter(self.path_to_videos + "/" + file_name_video, fourcc, self.fps, (self.width, self.height))
-
-        return out
-
-    def stop_recording(self, out):
-        try:
-            # Release the video writer
-            out.release()
-            cv2.destroyAllWindows()
-        except Exception as e:
-            print(f"Error occurred during video release: {str(e)}")
-
-    def record_video(self, file_name: str, recording):        
-        while True:
-            img = pyautogui.screenshot()
-            frame = np.array(img)
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            recording.write(frame)
-            time.sleep(0.1)
-
-    def start_video_recording(self, file_name: str):
-        self.recording = self.screen_record(file_name)
-        self.thread = threading.Thread(target=self.record_video, args=(file_name, self.recording))
-        self.thread.start()
-
-        return self.recording, self.thread
     
-    def stop_video_recording(self, recording, thread):
-        # Stop the video recording
-        self.stop_recording(recording)
-
-        # Wait for the thread to finish
-        self.thread.join()
-
     def boosteroidAuth(self, file_name: tuple[str, str] = None, credentials=None) -> bool:
         try:
             if self.click_image(file_name[0]):
@@ -472,7 +428,66 @@ class Base:
         return True
 
 
+    #video
 
+    def screen_record(self, file_name: str):
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        file_name_video = f"{file_name}_{timestamp}.{self.format}"
 
+        # Set the screen recording parameters
+        self.width, self.height = pyautogui.size()
 
+        # Create the directory if it doesn't exist
+        if not os.path.exists(self.path_to_videos):
+            os.makedirs(self.path_to_videos)
 
+        # Create video writer object
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        out = cv2.VideoWriter(os.path.join(self.path_to_videos, file_name_video), fourcc, self.fps, (self.width, self.height))
+
+        return out
+
+    def record_video(self, recording):
+        while True:
+            try:
+                img = pyautogui.screenshot()
+                frame = np.array(img)
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                recording.write(frame)
+                time.sleep(0.1)
+
+                if self.test_complete:
+                    break
+            except Exception as e:
+                print(f"Error occurred during method: 'record_video: {str(e)}")
+
+        self.stop_recording(recording)
+
+    def start_video_recording(self, file_name: str):
+        self.recording = self.screen_record(file_name)
+        self.recording_thread = threading.Thread(target=self.record_video, args=(self.recording,))
+        self.recording_thread.start()
+
+        return self.recording
+
+    def stop_recording(self, out):
+        try:
+            # Release the video writer
+            if out is not None:
+                out.release()
+                cv2.destroyAllWindows()
+        except Exception as e:
+            print(f"Error occurred during video release: {str(e)}")
+
+    def stop_video_recording(self, recording):
+        # Stop the video recording
+        self.stop_recording(recording)
+
+        # Wait for the recording thread to finish
+        if self.recording_thread is not None:
+            self.recording_thread.join()
+
+    def stop_threads(self):
+        # Set a flag to indicate threads should stop
+        for thread in self.threads:
+            thread.stop() 

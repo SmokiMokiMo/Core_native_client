@@ -58,37 +58,34 @@ class TestAuth:
         if not TestAuth.reg:
             TestAuth.reg = Auth()
         self.reg = TestAuth.reg
-
-    @pytest.fixture(autouse=True)
-    def setup(self, request):
-        # Start video recording before each test method
-        recording, thread = self.reg.start_video_recording(request.node.name)
-
-        try:
-            yield  # Execute the test method
-        finally:
-            # Stop video recording after each test method
-            self.reg.stop_video_recording(recording, thread)
-
+    
 
     @allure.story("launch the application and check if it has started")
     @pytest.mark.run(order=1)
     def test_startProcess(self):
         self.reg.logger.info("\tRunning Test1 - 'test_startProcess': run application\n")
+        recording = None
         try:
-            result = self.reg.startProcess(self.reg.clickable_images[0])
-            assert result is True
+            recording = self.reg.start_video_recording("test_auth")
+            result1 = self.reg.startProcess(self.reg.clickable_images[0])
+            result2 = self.reg.boosteroidAuth()
+            assert result1 is True
+            assert result2 is True
             with allure.step("Attach screenshot"):
-                 screenshot_path = self.reg.get_screenshot("test_startProcess.png")
-                 allure.attach.file(screenshot_path, name="Start_application",
-                            attachment_type=allure.attachment_type.PNG)
-        except AssertionError:
-            screenshot_path = self.reg.get_screenshot("test_stertProcess_failed.png")
+                screenshot_path = self.reg.get_screenshot("test_startProcess.png")
+                allure.attach.file(screenshot_path, name="Start_application", attachment_type=allure.attachment_type.PNG)
+        except Exception as e:
+            #self.reg.logger(f"Error is: {e}")
+            screenshot_path = self.reg.get_screenshot("test_startProcess_failed.png")
             allure.attach("Screenshot", self.reg.get_screenshot("test_startProcess_failed.png"),
-                        allure.attachment_type.PNG)
+                          allure.attachment_type.PNG)
             raise
+        finally:
+            if recording is not None:
+                self.reg.stop_video_recording(recording)
+            self.reg.stop_threads()
             
-
+    """
     @allure.story("authorization and familiarization with the application")
     @pytest.mark.run(order=2)
     def test_boosteroidAuth(self):
@@ -110,7 +107,7 @@ class TestAuth:
         
 
 
-    """
+
     
 if __name__ == '__main__':
     start_time = time.time()
