@@ -66,24 +66,27 @@ class TestAuth:
         self.reg.logger.info("\tRunning Test1 - 'test_startProcess': run application\n")
         recording = None
         try:
-            recording = self.reg.start_video_recording("test_auth")
+            recording = self.reg.start_video_recording("test_auth")            
             result1 = self.reg.startProcess(self.reg.clickable_images[0])
             result2 = self.reg.boosteroidAuth()
             assert result1 is True
             assert result2 is True
             with allure.step("Attach screenshot"):
+                if recording is not None:
+                    self.reg.stop_video_recording(recording)
+                    self.reg.stop_threads()
                 screenshot_path = self.reg.get_screenshot("test_startProcess.png")
                 allure.attach.file(screenshot_path, name="Start_application", attachment_type=allure.attachment_type.PNG)
         except Exception as e:
             #self.reg.logger(f"Error is: {e}")
-            screenshot_path = self.reg.get_screenshot("test_startProcess_failed.png")
+            #screenshot_path = self.reg.get_screenshot("test_startProcess_failed.png")
             allure.attach("Screenshot", self.reg.get_screenshot("test_startProcess_failed.png"),
                           allure.attachment_type.PNG)
             raise
-        finally:
-            if recording is not None:
-                self.reg.stop_video_recording(recording)
-            self.reg.stop_threads()
+        #finally:
+        #    if recording is not None:               
+        #        self.reg.stop_video_recording(recording)
+        #    self.reg.stop_threads()
             
     """
     @allure.story("authorization and familiarization with the application")

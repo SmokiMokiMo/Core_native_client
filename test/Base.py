@@ -67,7 +67,8 @@ class Base:
         # Add video parameters 
         self.threads = [] 
         self.recording_thread = None
-        self.test_complete = False   
+        self.stop_flag = threading.Event()
+        self.test_complete = True  
         self.format = "avi"
         self.fps = 3
         self.width = 1920
@@ -447,8 +448,9 @@ class Base:
 
         return out
 
-    def record_video(self, recording):
-        while True:
+    def record_video(self, recording):        
+        _counter = 0
+        while not self.stop_flag.is_set():
             try:
                 img = pyautogui.screenshot()
                 frame = np.array(img)
@@ -456,17 +458,22 @@ class Base:
                 recording.write(frame)
                 time.sleep(0.1)
 
-                if self.test_complete:
-                    break
+                #if self.test_complete:
+                #    break
+
+                _counter += 1
             except Exception as e:
-                print(f"Error occurred during method: 'record_video: {str(e)}")
+                self.logger.error(f"Error occurred during method: 'record_video': {str(e)}")
 
         self.stop_recording(recording)
+        self.logger.debug("Counter value: '%s'", _counter)
 
     def start_video_recording(self, file_name: str):
+        self.logger.info("Method 'start_video_recording' - Start recording: %s", self.threads) 
         self.recording = self.screen_record(file_name)
         self.recording_thread = threading.Thread(target=self.record_video, args=(self.recording,))
         self.recording_thread.start()
+        self.threads.append(self.recording_thread)
 
         return self.recording
 
@@ -481,13 +488,22 @@ class Base:
 
     def stop_video_recording(self, recording):
         # Stop the video recording
+        self.logger.info("Method 'stop_video_recording': stopping recording - Threads - '%s'", self.threads)
         self.stop_recording(recording)
 
         # Wait for the recording thread to finish
         if self.recording_thread is not None:
             self.recording_thread.join()
 
+        # Stop and release the recording
+        self.stop_recording(recording)
+
     def stop_threads(self):
+        # Set the stop flag to signal the threads to stop
+        self.stop_flag.set()
         # Set a flag to indicate threads should stop
         for thread in self.threads:
-            thread.stop() 
+            thread.join()
+        
+        self.threads = []
+        self.logger.info("Method 'stop_threads': Threads - '%s'", self.threads)
