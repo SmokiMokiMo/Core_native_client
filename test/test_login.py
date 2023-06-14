@@ -1,5 +1,4 @@
 import pyautogui
-from typing import Tuple, Dict
 from Base import Base
 import time
 import pytest
@@ -8,15 +7,15 @@ import allure
 
 class Auth(Base):
 
-    def __init__(self, file_name: Tuple[str, ...]="auth.png") -> None:
+    def __init__(self, file_name: tuple[str, ...]="auth.png") -> None:
         super().__init__()
 
         """Data for the test"""
-        self.credentials: Dict[str, str] = {
+        self.credentials: dict[str, str] = {
             "email": "i.zayats@boosteroid.com",
             "passw": "123123123"
             }
-        self.clickable_images: Tuple[str, ...] = (
+        self.clickable_images: tuple[str, ...] = (
                 "auth.png", "email.png", "password.png", "remember.png", "log_in.png", "change_log.png",
                 "change_log_ok.png", "edu.png", "next.png", "edu1.png", "next.png", "edu2.png",
                 "next.png", "edu3.png", "next.png", "edu4.png", "next.png", "edu5.png",
@@ -24,7 +23,7 @@ class Auth(Base):
                 "main_menu.png", "user_sett_PROD.png", "menu_user.png", "log_out.png",
                 "logout_confirm.png", "out_confirm_ok.png", "boost_start.png", "close_prog.png"
             )
-        self.unlockable_images: Tuple[str, ...] = (
+        self.unlockable_images: tuple[str, ...] = (
                 "auth.png", "change_log.png", "edu.png", "edu1.png", "edu2.png", "edu3.png", "edu4.png",
                 "edu5.png", "edu6.png", "free_time.png", "main_menu.png", "logout_confirm.png", "boost_start.png", "menu_user.png"
             )
@@ -50,8 +49,7 @@ class Auth(Base):
 @allure.feature("Runong application, authorization and close application")
 class TestAuth:
     reg = None
-
-
+    
 
     @pytest.fixture(autouse=True)
     def init(self):
@@ -63,7 +61,7 @@ class TestAuth:
     @allure.story("launch the application and check if it has started")
     @pytest.mark.run(order=1)
     def test_startProcess(self):
-        self.reg.logger.info("\tRunning Test1 - 'test_startProcess': run application\n")
+        self.reg.logger.info("Running Test1 - 'test_startProcess': run application")
         recording = None
         try:
             recording = self.reg.start_video_recording("test_auth")            
@@ -71,47 +69,22 @@ class TestAuth:
             result2 = self.reg.boosteroidAuth()
             assert result1 is True
             assert result2 is True
-            with allure.step("Attach screenshot"):
-                if recording is not None:
-                    self.reg.stop_video_recording(recording)
-                    self.reg.stop_threads()
+            with allure.step("Attach screenshot"):                                   
                 screenshot_path = self.reg.get_screenshot("test_startProcess.png")
                 allure.attach.file(screenshot_path, name="Start_application", attachment_type=allure.attachment_type.PNG)
         except Exception as e:
-            #self.reg.logger(f"Error is: {e}")
-            #screenshot_path = self.reg.get_screenshot("test_startProcess_failed.png")
+            self.reg.logger(f"Error is: {e}")
+            screenshot_path = self.reg.get_screenshot("test_startProcess_failed.png")
             allure.attach("Screenshot", self.reg.get_screenshot("test_startProcess_failed.png"),
                           allure.attachment_type.PNG)
             raise
-        #finally:
-        #    if recording is not None:               
-        #        self.reg.stop_video_recording(recording)
-        #    self.reg.stop_threads()
-            
-    """
-    @allure.story("authorization and familiarization with the application")
-    @pytest.mark.run(order=2)
-    def test_boosteroidAuth(self):
-        self.reg.logger.info("\tRunning Test2 -'test_boosteroidAuth': authorization and education check\n")
-        try:
-            result = self.reg.boosteroidAuth()
-            assert result is True
-            with allure.step("Attach screenshot"):
-                 screenshot_path = self.reg.get_screenshot("test_boosteroidAuth.png")
-                 allure.attach.file(screenshot_path, name="Auth_and_chech_training",
-                               attachment_type=allure.attachment_type.PNG)
-        except AssertionError:
-            screenshot_path = self.reg.get_screenshot("test_boosteroidAuth_failed.png")
-            allure.attach.file(screenshot_path, name="Auth_and_chech_training",
-                               attachment_type=allure.attachment_type.PNG)
-            raise
-        
-        
-        
+        finally:
+            if recording is not None:
+                    self.reg.stop_threads()
+                    self.reg.stop_video_recording(recording) 
 
 
-
-    
+"""
 if __name__ == '__main__':
     start_time = time.time()
     

@@ -7,7 +7,6 @@ import pyautogui
 import time
 import os
 import logging
-import pytesseract
 from PIL import Image
 import cv2
 
@@ -65,14 +64,14 @@ class Base:
         self.config_file_path: str = '/home/user/.config/Boosteroid Games S.R.L./Boosteroid.conf'        
         
         # Add video parameters 
-        self.threads = [] 
+        self.threads: list = [] 
         self.recording_thread = None
         self.stop_flag = threading.Event()
-        self.test_complete = True  
-        self.format = "avi"
-        self.fps = 3
-        self.width = 1920
-        self.height = 1080
+        self.test_complete: bool = True  
+        self.format: str = "avi"
+        self.fps: int = 3
+        self.width: int = 1920
+        self.height: int = 1080
         self.path_to_videos = "/home/user/PycharmProjects/Test_Native_Client/allure_video"
         
 
@@ -131,27 +130,6 @@ class Base:
         except Exception as e:
             self.logger.info("Fail to openong file '%s', error inf '%s'", path, e)        
         
-
-    def visual_recognize(self):        
-        # Get the current mouse position
-        mouse_x, mouse_y = pyautogui.position()
-        # Define the zone around the mouse cursor
-        zone_width = 300
-        zone_height = 100
-        left = mouse_x - zone_width // 2
-        top = mouse_y - zone_height // 2
-        right = mouse_x + zone_width // 2
-        bottom = mouse_y + zone_height // 2
-
-        # Capture a screenshot of the defined zone
-        screenshot = pyautogui.screenshot('find', region=(left, top, zone_width, zone_height))
-        screenshot_path = os.path.join(self.screenshot_directory, screenshot)
-
-        image = Image.open(screenshot_path)
-        # Perform text recognition on the captured screenshot
-        text = pytesseract.image_to_string(image, lang='eng')        
-        return text
-
 
     def test_auth(self, clickable_images: tuple[str, ...]=None, unlockable_images: tuple[str, ...]=None, start_index=0, end_index: int = None) -> bool:
         success = True
@@ -452,16 +430,26 @@ class Base:
         _counter = 0
         while not self.stop_flag.is_set():
             try:
-                img = pyautogui.screenshot()
-                frame = np.array(img)
+                # Capture the screenshot
+                screenshot = pyautogui.screenshot()
+
+                # Convert the screenshot to a NumPy array
+                frame = np.array(screenshot)
+
+                # Convert the color space if needed (BGR to RGB)
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                recording.write(frame)
+
+                # Convert the NumPy array to a PIL Image object
+                pil_image = Image.fromarray(frame)
+
+                # Write the frame to the recording
+                recording.write(np.array(pil_image))
+
                 time.sleep(0.1)
 
-                #if self.test_complete:
-                #    break
-
-                _counter += 1
+                # Increment the counter
+                #_counter += 1
+                #self.logger.debug("Counter numbers is:'%s'", _counter)
             except Exception as e:
                 self.logger.error(f"Error occurred during method: 'record_video': {str(e)}")
 
@@ -497,6 +485,7 @@ class Base:
 
         # Stop and release the recording
         self.stop_recording(recording)
+        
 
     def stop_threads(self):
         # Set the stop flag to signal the threads to stop
