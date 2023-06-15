@@ -1,12 +1,12 @@
 import sys
 import time
-from Base import Base
+from modules_for_test.video_record import VideoRec
 from typing import Optional, Tuple
 import allure
 import pytest
 
 
-class UpdateApp(Base):
+class UpdateApp(VideoRec):
 
     def __init__(self) -> None:
         super().__init__()
@@ -16,7 +16,7 @@ class UpdateApp(Base):
             "passw": "123123123"
         }
 
-        self.path_to_images: str = "/home/user/PycharmProjects/Test_Native_Client/images/update_app"
+        self.path_to_images: str = "/home/user/Test_Native_Client/images/update_app"
         self.images_tuple: tuple[str, str] = (
             "update_window.png", "update_click.png", "updating_progress.png", "enter_pass_confirm.png",
             "password_input_click.png",	"authenticate_click.png", "app_log_in_main.png"

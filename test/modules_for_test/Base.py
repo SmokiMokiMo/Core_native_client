@@ -26,8 +26,8 @@ class Base:
         # Create a file handler
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         log_file_test: str =  (f"{class_name}_logs_{timestamp}.log")
-        logs_test_directory: str = "/home/user/PycharmProjects/Test_Native_Client/logs_test/"
-        test_logs: str = os.path.join("/home/user/PycharmProjects/Test_Native_Client/logs_test/", log_file_test)
+        logs_test_directory: str = "/home/user/Test_Native_Client/logs_test/"
+        test_logs: str = os.path.join(logs_test_directory, log_file_test)
 
         # Create the logs_test directory if it doesn't exist
         if not os.path.exists(logs_test_directory):
@@ -47,7 +47,7 @@ class Base:
         self.logger.addHandler(sh)
 
         # path and name of log file 'logs' for aplication
-        self.boostroid_logs: str = "/home/user/PycharmProjects/Test_Native_Client/logs/"      
+        self.boostroid_logs: str = "/home/user/Test_Native_Client/logs/"      
         if not os.path.exists(self.boostroid_logs):
             os.makedirs(self.boostroid_logs)  
         self.log_file_name = f"Boost_Test:'{class_name}'{timestamp}.log"
@@ -59,7 +59,7 @@ class Base:
         self.path_to_boost_deb: str = "/home/user/Downloads/"
         self.boost_app: str = "boosteroid-install-x64.deb"
         self.bin_app_path: str = ("/opt/BoosteroidGamesS.R.L./bin/Boosteroid")
-        self.screenshot_directory: str = "/home/user/PycharmProjects/Test_Native_Client/screenshot"
+        self.screenshot_directory: str = "/home/user/Test_Native_Client/screenshot"
         self.config_file_path: str = '/home/user/.config/Boosteroid Games S.R.L./Boosteroid.conf'        
         
         # Data for 'click_image' and 'findImageAndWait'       

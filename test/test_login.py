@@ -28,7 +28,7 @@ class Auth(VideoRec):
                 "auth.png", "change_log.png", "edu.png", "edu1.png", "edu2.png", "edu3.png", "edu4.png",
                 "edu5.png", "edu6.png", "free_time.png", "main_menu.png", "logout_confirm.png", "boost_start.png", "menu_user.png"
             )
-        self.path_to_images: str = "/home/user/PycharmProjects/Test_Native_Client/images/login"
+        self.path_to_images: str = "/home/user/Test_Native_Client/images/login"
     
     def boosteroidAuth(self) -> bool:
             if not self.click_image(self.clickable_images[1]):

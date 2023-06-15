@@ -23,7 +23,7 @@ class VideoRec(Base):
         self.fps: int = 3
         self.width: int = 1920
         self.height: int = 1080
-        self.path_to_videos = "/home/user/PycharmProjects/Test_Native_Client/allure_video"
+        self.path_to_videos = "/home/user/Test_Native_Client/allure_video"
            
    
     def screen_record(self, file_name: str):

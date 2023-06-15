@@ -2,11 +2,11 @@ import re
 import time
 import pyautogui
 import pytest
-from Base import Base
+from modules_for_test.video_record import VideoRec
 import allure
-from pytest_video import recording
 
-class CardsGames(Base):
+
+class CardsGames(VideoRec):
 
     def __init__(self) -> None:
         super().__init__()
@@ -20,7 +20,7 @@ class CardsGames(Base):
             "click", "search_line_click.png"
         )
 
-        self.path_to_images: str = "/home/user/PycharmProjects/Test_Native_Client/images/games_cards"
+        self.path_to_images: str = "/home/user/Test_Native_Client/images/games_cards"
 
         self.credentials_app: dict[str, str] = {
             "email": "i.zayats@boosteroid.com",

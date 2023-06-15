@@ -6,7 +6,7 @@ import json
 import os
 import pyautogui
 import pytest
-from Base import Base
+from modules_for_test.video_record import VideoRec
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -16,7 +16,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 
 
-class GmailLogin(Base):
+class GmailLogin(VideoRec):
 
     def __init__(self) -> None:
         super().__init__()
@@ -56,15 +56,15 @@ class GmailLogin(Base):
             "seln4_accep_auth_click.png", "seln5_accept_auth_click.png", "check_box_del_click.png",
             "button_delete_email_click.png", "if_email_empty.png"
         )
-        self.path_to_images: str = "/home/user/PycharmProjects/Test_Native_Client/images/registration"
-        self.path_to_store: str = "/home/user/PycharmProjects/Test_Native_Client/store"
+        self.path_to_images: str = "/home/user/Test_Native_Client/images/registration"
+        self.path_to_store: str = "/home/user/Test_Native_Client/store"
         self.region: tuple = None
         self.timeout: int = 15
 
         self.driver = None
         chrome_options = Options()
         chrome_options.add_argument("--lang=en-US")
-        self.webdriver_path: str = "/home/user/PycharmProjects/Test_Native_Client/chromedriver"
+        self.webdriver_path: str = "/home/user/Test_Native_Client/chromedriver"
 
     def write_json_cred(self, file_name=not None):
         try:
