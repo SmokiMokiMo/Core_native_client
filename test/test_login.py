@@ -1,16 +1,17 @@
+from modules_for_test.Base import Base
+from modules_for_test.video_record import VideoRec
 import pyautogui
-from Base import Base
 import time
 import pytest
 import allure
 
 
-class Auth(Base):
+class Auth(VideoRec):
 
     def __init__(self, file_name: tuple[str, ...]="auth.png") -> None:
         super().__init__()
 
-        """Data for the test"""
+        #Data for the test
         self.credentials: dict[str, str] = {
             "email": "i.zayats@boosteroid.com",
             "passw": "123123123"
@@ -58,24 +59,24 @@ class TestAuth:
         self.reg = TestAuth.reg
     
 
-    @allure.story("launch the application and check if it has started")
+    @allure.story("Launch the application and check if it has started")
     @pytest.mark.run(order=1)
     def test_startProcess(self):
         self.reg.logger.info("Running Test1 - 'test_startProcess': run application")
         recording = None
         try:
-            recording = self.reg.start_video_recording("test_auth")            
+            recording = self.reg.start_video_recording(self.__class__.__name__)            
             result1 = self.reg.startProcess(self.reg.clickable_images[0])
             result2 = self.reg.boosteroidAuth()
             assert result1 is True
             assert result2 is True
             with allure.step("Attach screenshot"):                                   
-                screenshot_path = self.reg.get_screenshot("test_startProcess.png")
+                screenshot_path = self.reg.get_screenshot("test_startProcess")
                 allure.attach.file(screenshot_path, name="Start_application", attachment_type=allure.attachment_type.PNG)
         except Exception as e:
             self.reg.logger(f"Error is: {e}")
             screenshot_path = self.reg.get_screenshot("test_startProcess_failed.png")
-            allure.attach("Screenshot", self.reg.get_screenshot("test_startProcess_failed.png"),
+            allure.attach("Screenshot", self.reg.get_screenshot("test_startProcess_failed"),
                           allure.attachment_type.PNG)
             raise
         finally:
