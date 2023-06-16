@@ -74,7 +74,7 @@ class TestAuth:
                 screenshot_path = self.reg.get_screenshot("test_startProcess")
                 allure.attach.file(screenshot_path, name="Start_application", attachment_type=allure.attachment_type.PNG)
         except Exception as e:
-            self.reg.logger(f"Error is: {e}")
+            self.reg.logger.error(f"Error is: {e}")
             screenshot_path = self.reg.get_screenshot("test_startProcess_failed.png")
             allure.attach("Screenshot", self.reg.get_screenshot("test_startProcess_failed"),
                           allure.attachment_type.PNG)
