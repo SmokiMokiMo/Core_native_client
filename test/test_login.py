@@ -1,4 +1,3 @@
-from modules_for_test.Base import Base
 from modules_for_test.video_record import VideoRec
 import pyautogui
 import time
@@ -75,7 +74,7 @@ class TestAuth:
                 allure.attach.file(screenshot_path, name="Start_application", attachment_type=allure.attachment_type.PNG)
         except Exception as e:
             self.reg.logger.error(f"Error is: {e}")
-            screenshot_path = self.reg.get_screenshot("test_startProcess_failed.png")
+            #screenshot_path = self.reg.get_screenshot("test_startProcess_failed.png")
             allure.attach("Screenshot", self.reg.get_screenshot("test_startProcess_failed"),
                           allure.attachment_type.PNG)
             raise
@@ -90,7 +89,7 @@ if __name__ == '__main__':
     start_time = time.time()
     
     auth = Auth()    
-
+    recording = auth.start_video_recording(auth.__class__.__name__)
     if not auth.startProcess(auth.clickable_images[0]):
         auth.logger.error("Failed to start process")
         auth.get_screenshot("Not started.png")
@@ -102,6 +101,8 @@ if __name__ == '__main__':
         print('\033[32mSuccess start\033[0m')
         print('\033[32mSuccess auth\033[0m')
         
+    auth.stop_threads()
+    auth.stop_video_recording(recording)
     end_time = time.time()
     execution_time = int(end_time - start_time)
     auth.logger.info("Test execution time: '%s' sec.", execution_time)

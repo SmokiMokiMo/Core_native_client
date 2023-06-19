@@ -64,7 +64,7 @@ class Base:
         
         # Data for 'click_image' and 'findImageAndWait'       
         self.region: tuple = (0, 0, 1920, 1080)
-        self.timeout: int = 10
+        self.timeout: int = 30
         #self.image_location: tuple = None
         self._counter: int = 0
 
