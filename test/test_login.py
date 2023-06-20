@@ -97,9 +97,8 @@ if __name__ == '__main__':
         auth.logger.error("Failed to authenticate")
         auth.get_screenshot("auth_error.png")
     else:
-        auth.logger.info("Success start and auth")
-        print('\033[32mSuccess start\033[0m')
-        print('\033[32mSuccess auth\033[0m')
+        auth.logger.info("Success start and auth -> Success start -> Success auth")
+        
         
     auth.stop_threads()
     auth.stop_video_recording(recording)

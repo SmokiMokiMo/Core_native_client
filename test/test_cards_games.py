@@ -56,7 +56,9 @@ class CardsGames(VideoRec):
         self._counter: int = 0
 
 
-@allure.feature("Test cards of games")
+
+"""
+
 class TestCardsGames:
     cg = None
 
@@ -66,67 +68,58 @@ class TestCardsGames:
             TestCardsGames.cg = CardsGames()
         self.cg = TestCardsGames.cg
 
-    @allure.story("Test 1: Run application")
+    @allure.story("Test: Run application, Login, and Check cards")
     @pytest.mark.run(order=1)
-    def test_startProcess(self):
-        self.cg.logger.info(
-            "\tRunning Test1 - 'test_startProcess': launching application\n")
+    def test_runApplication(self):
+        self.cg.logger.info("\tRunning Test: Run application, Login, and Check cards\n")
+        recording = None
+        try:
+            recording = self.cg.start_video_recording(self.__class__.__name__)
+            self.run_application()
+            self.login_application()
+            self.check_cards()
+        finally:
+            if recording is not None:
+                self.cg.stop_threads()
+                self.cg.stop_video_recording(recording)
+
+    def run_application(self):
+        self.cg.logger.info("\t\tRunning sub-test: Run application\n")
         try:
             result = self.cg.startProcess(self.cg.run_app)
             assert result is True
             with allure.step("Attach screenshot"):
-                screenshot_path = self.cg.get_screenshot(
-                    "1_test_startProcess.png")
-                allure.attach.file(screenshot_path, name="test_start_application",
-                                   attachment_type=allure.attachment_type.PNG)
+                screenshot_path = self.cg.get_screenshot("run_application.png")
+                allure.attach.file(screenshot_path, name="run_application", attachment_type=allure.attachment_type.PNG)
         except AssertionError:
-            screenshot_path = self.cg.get_screenshot(
-                "test_startProcess_failed.png")
-            allure.attach.file(screenshot_path, name="test_startProcess_failed",
-                               attachment_type=allure.attachment_type.PNG)
+            screenshot_path = self.cg.get_screenshot("run_application_failed.png")
+            allure.attach.file(screenshot_path, name="run_application_failed", attachment_type=allure.attachment_type.PNG)
             raise
 
-        allure.attach("Expected Result:",
-                      "The apppicetion will be running successful")
-        allure.attach(
-            "Summary:", "Test the start process of the application and check gema cards")
-
-    @allure.story("Test 2:Login in application")
-    @pytest.mark.run(order=2)
-    def test_boosteroidAuth(self):
-        self.cg.logger.info("\tRunning Test2 -'setup': application login\n")
+    def login_application(self):
+        self.cg.logger.info("\t\tRunning sub-test: Login application\n")
         try:
-            result = self.cg.boosteroidAuth(
-                self.cg.auth_app_images, self.cg.credentials_app)
+            result = self.cg.boosteroidAuth(self.cg.auth_app_images, self.cg.credentials_app)
             assert result is True
             with allure.step("Attach screenshot"):
-                screenshot_path = self.cg.get_screenshot(
-                    "2_boosteroidAuth.png")
-                allure.attach.file(screenshot_path, name="test_boosteroid_auth",
-                                   attachment_type=allure.attachment_type.PNG)
+                screenshot_path = self.cg.get_screenshot("login_application.png")
+                allure.attach.file(screenshot_path, name="login_application", attachment_type=allure.attachment_type.PNG)
         except AssertionError:
-            screenshot_path = self.cg.get_screenshot(
-                "boosteroidAuth_failed.png")
-            allure.attach.file(screenshot_path, name="test_boosteroidAuth_failed",
-                               attachment_type=allure.attachment_type.PNG)
+            screenshot_path = self.cg.get_screenshot("login_application_failed.png")
+            allure.attach.file(screenshot_path, name="login_application_failed", attachment_type=allure.attachment_type.PNG)
             raise
 
-    @allure.story("Test 3:Chech cards in application")
-    @pytest.mark.run(order=3)
-    def test_card_check(self):
-        self.cg.logger.info("\tRunning Test3 -'card_check': google login\n")
+    def check_cards(self):
+        self.cg.logger.info("\t\tRunning sub-test: Check cards\n")
         try:
-            result = self.cg.click_write_or_findAndWait(
-                self.cg.find_and_check_games, self.cg.searching_field_test, self.cg.card_check_text)
+            result = self.cg.click_write_or_findAndWait(self.cg.find_and_check_games, self.cg.searching_field_test, self.cg.card_check_text)
             assert result is True
             with allure.step("Attach screenshot"):
-                screenshot_path = self.cg.get_screenshot("3_card_check.png")
-                allure.attach.file(screenshot_path, name="card_check",
-                                   attachment_type=allure.attachment_type.PNG)
+                screenshot_path = self.cg.get_screenshot("check_cards.png")
+                allure.attach.file(screenshot_path, name="check_cards", attachment_type=allure.attachment_type.PNG)
         except AssertionError:
-            screenshot_path = self.cg.get_screenshot("card_check_failed.png")
-            allure.attach.file(screenshot_path, name="test_card_check_failed",
-                               attachment_type=allure.attachment_type.PNG)
+            screenshot_path = self.cg.get_screenshot("check_cards_failed.png")
+            allure.attach.file(screenshot_path, name="check_cards_failed", attachment_type=allure.attachment_type.PNG)
             raise
 """
 
@@ -134,29 +127,26 @@ if __name__ == '__main__':
     start_time = time.time()
     
     cg = CardsGames()
-
+    recording = cg.start_video_recording(cg.__class__.__name__)
     if not cg.startProcess(cg.run_app):
         cg.logger.error("Failed to start process")
-        cg.get_screenshot("Not started.png")    
+        cg.get_screenshot("Not started")    
 
     if not cg.boosteroidAuth(cg.auth_app_images, cg.credentials_app):
         cg.logger.error("Failed to authenticate")
-        cg.get_screenshot("auth_error.png")
+        cg.get_screenshot("auth_error")
     
     if not cg.click_write_or_findAndWait(
         cg.find_and_check_games, cg.searching_field_test, cg.card_check_text):
         cg.logger.error("Failed check card")
-        cg.get_screenshot("check card.png")
+        cg.get_screenshot("check card")
         
     else:
-        cg.logger.info("Success start and auth")
-        print('\033[32mSuccess start\033[0m')
-        print('\033[32mSuccess auth\033[0m')
-        print('\033[32mSuccess check card\033[0m')
+        cg.logger.info("Success start -> Success auth -> Success check card")        
         
+    cg.stop_threads()
+    cg.stop_video_recording(recording)
     end_time = time.time()
     execution_time = int(end_time - start_time)
     cg.logger.info("Test execution time: '%s' sec.", execution_time)
     print(f"\033[32mTest execution time: \033[33m'{execution_time}'\033[0m\033[32msec.\033[0m")
-
-"""
