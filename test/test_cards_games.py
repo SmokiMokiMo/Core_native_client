@@ -57,7 +57,7 @@ class CardsGames(VideoRec):
 
 
 
-"""
+
 
 class TestCardsGames:
     cg = None
@@ -68,10 +68,9 @@ class TestCardsGames:
             TestCardsGames.cg = CardsGames()
         self.cg = TestCardsGames.cg
 
-    @allure.story("Test: Run application, Login, and Check cards")
-    @pytest.mark.run(order=1)
+    @allure.story("Test: Run application, Login, and Check cards")   
     def test_runApplication(self):
-        self.cg.logger.info("\tRunning Test: Run application, Login, and Check cards\n")
+        self.cg.logger.info("Running Test: Run application, Login, and Check cards")
         recording = None
         try:
             recording = self.cg.start_video_recording(self.__class__.__name__)
@@ -84,7 +83,7 @@ class TestCardsGames:
                 self.cg.stop_video_recording(recording)
 
     def run_application(self):
-        self.cg.logger.info("\t\tRunning sub-test: Run application\n")
+        self.cg.logger.info("Running sub-test: Run application")
         try:
             result = self.cg.startProcess(self.cg.run_app)
             assert result is True
@@ -97,7 +96,7 @@ class TestCardsGames:
             raise
 
     def login_application(self):
-        self.cg.logger.info("\t\tRunning sub-test: Login application\n")
+        self.cg.logger.info("Running sub-test: Login application")
         try:
             result = self.cg.boosteroidAuth(self.cg.auth_app_images, self.cg.credentials_app)
             assert result is True
@@ -110,7 +109,7 @@ class TestCardsGames:
             raise
 
     def check_cards(self):
-        self.cg.logger.info("\t\tRunning sub-test: Check cards\n")
+        self.cg.logger.info("Running sub-test: Check cards")
         try:
             result = self.cg.click_write_or_findAndWait(self.cg.find_and_check_games, self.cg.searching_field_test, self.cg.card_check_text)
             assert result is True
@@ -150,3 +149,4 @@ if __name__ == '__main__':
     execution_time = int(end_time - start_time)
     cg.logger.info("Test execution time: '%s' sec.", execution_time)
     print(f"\033[32mTest execution time: \033[33m'{execution_time}'\033[0m\033[32msec.\033[0m")
+"""

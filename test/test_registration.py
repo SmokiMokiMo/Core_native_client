@@ -37,13 +37,13 @@ class GmailLogin(VideoRec):
         )
 
         self.web_confirm_reg: tuple[str, str] = (
-            "3_email_click.png", "4_pass_click.png", "remember_my_web_click.png", "sing_in_click.png", "web_main.png",
+            "web_email_click.png", "web_pass_click.png", "remember_my_web_click.png", "web_sing_in_click.png", "web_main.png",
             "login_in_gmail_acc.png"
-        )
+        )       
 
         self.new_user_images: tuple[str, str] = (
-            "9_login_main_menu_find.png", "1_create_acc_click.png", "2_create_acc_find.png", "web_email_click.png",
-            "web_pass_click.png", "5_reapet_pass_click.png", "6_sing_in_click.png", "7_need_confirm_find.png",
+            "9_login_main_menu_find.png", "1_create_acc_click.png", "2_create_acc_find.png", "3_email_click.png",
+            "4_pass_click.png", "5_reapet_pass_click.png", "6_sing_in_click.png", "7_need_confirm_find.png",
             "10_close_app_click.png"
         )
 
@@ -337,24 +337,20 @@ class TestGmailLogin:
             TestGmailLogin.reg = GmailLogin()
         self.reg = TestGmailLogin.reg
 
-    @allure.story("Test 1:Clean letter list in gmail")
-    @pytest.mark.run(order=1)
+    @allure.story("Test: New user registration and try autorization in application")  
     def test_ClearLetterList(self):
-        self.reg.logger.info(
-            "Running Test1 -'test_startProcess': launching browser and remove all letters")
+        self.reg.logger.info("Running Test1 -'test_startProcess': launching browser and remove all letters")
         try:
             result = False           
             if self.reg.setup():
                result = self.reg.removeEmailLetters()            
             assert result is True
             with allure.step("Attach screenshot"):
-                screenshot_path = self.reg.get_screenshot(
-                    "1_remove_letter")
+                screenshot_path = self.reg.get_screenshot("1_remove_letter")
                 allure.attach.file(screenshot_path, name="remove_letter",
                                    attachment_type=allure.attachment_type.PNG)
         except AssertionError:
-            screenshot_path = self.reg.get_screenshot(
-                "remove_letter_failed")
+            screenshot_path = self.reg.get_screenshot("remove_letter_failed")
             allure.attach.file(screenshot_path, name="remove_letter_failed",
                                attachment_type=allure.attachment_type.PNG)
             raise
@@ -364,53 +360,42 @@ class TestGmailLogin:
         allure.attach(
             "Summary:", "Test launching browser and remove all letters")
 
-    @allure.story("Test 2:Run application")
-    @pytest.mark.run(order=2)
+    
     def test_startProcess(self):
-        self.reg.logger.info(
-            "Running Test2 -'test_startProcess': launching application")
+        self.reg.logger.info("Running Test2 -'test_startProcess': launching application")
         try:
             result = self.reg.startProcess(self.reg.new_user_images[0])
             assert result is True
             with allure.step("Attach screenshot"):
-                screenshot_path = self.reg.get_screenshot(
-                    "2_test_startProcess")
+                screenshot_path = self.reg.get_screenshot("2_test_startProcess")
                 allure.attach.file(screenshot_path, name="Start_application",
                                    attachment_type=allure.attachment_type.PNG)
         except AssertionError:
-            screenshot_path = self.reg.get_screenshot(
-                "test_startProcess_failed")
+            screenshot_path = self.reg.get_screenshot("test_startProcess_failed")
             allure.attach.file(screenshot_path, name="test_startProcess_failed",
                                attachment_type=allure.attachment_type.PNG)
             raise
 
-        allure.attach("Expected Result:",
-                      "The user registration should be successful")
-        allure.attach(
-            "Summary:", "Test the start process of the application and perform user registration")
+        allure.attach("Expected Result:", "The user registration should be successful")
+        allure.attach("Summary:", "Test the start process of the application and perform user registration")
 
-    @allure.story("Test3:Registarion new user with app using")
-    @pytest.mark.run(order=3)
+    
     def test_boosteroidNewUser(self):
-        self.reg.logger.info(
-            "Running Test3 -'boosteroidNewUser': new user registration")
+        self.reg.logger.info("Running Test3 -'boosteroidNewUser': new user registration")
         try:
             result = self.reg.boosteroidNewUser()
             assert result is True
             with allure.step("Attach screenshot"):
-                screenshot_path = self.reg.get_screenshot(
-                    "3_test_boosteroidNewUser")
+                screenshot_path = self.reg.get_screenshot("3_test_boosteroidNewUser")
                 allure.attach.file(screenshot_path, name="Start_application",
                                    attachment_type=allure.attachment_type.PNG)
         except AssertionError:
-            screenshot_path = self.reg.get_screenshot(
-                "test_boosteroidNewUser_failed")
+            screenshot_path = self.reg.get_screenshot("test_boosteroidNewUser_failed")
             allure.attach.file(screenshot_path, name="Start_application_failed",
                                attachment_type=allure.attachment_type.PNG)
             raise
 
-    @allure.story("Test 4:Login in goolge")
-    @pytest.mark.run(order=4)
+   
     def test_setup(self):
         self.reg.logger.info("Running Test4 -'setup': google login")
         try:
@@ -426,64 +411,51 @@ class TestGmailLogin:
                                attachment_type=allure.attachment_type.PNG)
             raise
 
-    @allure.story("Test 5:Login in goolge")
-    @pytest.mark.run(order=5)
+    
     def test_open_google_accounts(self):
-        self.reg.logger.info(
-            "Running Test5 -'open_google_accounts': confirm email letter")
+        self.reg.logger.info("Running Test5 -'open_google_accounts': confirm email letter")
         try:
             result = self.reg.open_google_accounts()
             assert result is True
             with allure.step("Attach screenshot"):
-                screenshot_path = self.reg.get_screenshot(
-                    "5_test_open_google_accounts")
+                screenshot_path = self.reg.get_screenshot("5_test_open_google_accounts")
             allure.attach.file(screenshot_path, name="Start_application",
                                attachment_type=allure.attachment_type.PNG)
         except AssertionError:
-            screenshot_path = self.reg.get_screenshot(
-                "test_open_google_accounts_failed")
+            screenshot_path = self.reg.get_screenshot("test_open_google_accounts_failed")
             allure.attach.file(screenshot_path, name="test_open_google_accounts_failed",
                                attachment_type=allure.attachment_type.PNG)
             raise
 
-    @allure.story("Test 6:Run application")
-    @pytest.mark.run(order=6)
+    
     def test_startProcess2(self):
-        self.reg.logger.info(
-            "Running Test6 -'test_startProcess': launching application")
+        self.reg.logger.info("Running Test6 -'test_startProcess': launching application")
         try:
             result = self.reg.startProcess(self.reg.new_user_images[0])
             assert result is True
             with allure.step("Attach screenshot"):
-                screenshot_path = self.reg.get_screenshot(
-                    "6_test_startProcess2")
+                screenshot_path = self.reg.get_screenshot("6_test_startProcess2")
                 allure.attach.file(screenshot_path, name="Start_application",
                                    attachment_type=allure.attachment_type.PNG)
         except AssertionError:
-            screenshot_path = self.reg.get_screenshot(
-                "test_startProcess2_failed")
+            screenshot_path = self.reg.get_screenshot("test_startProcess2_failed")
             allure.attach.file(screenshot_path, name="test_startProcess2_failed",
                                attachment_type=allure.attachment_type.PNG)
             raise
 
-    @allure.story("Test 7:Check login in application")
-    @pytest.mark.run(order=7)
+    
     def test_boosteroidAuth(self):
-        self.reg.logger.info(
-            "Running Test7 -'boosteroidAuth': launching application and login check")
+        self.reg.logger.info("Running Test7 -'boosteroidAuth': launching application and login check")
         try:
             credentials = self.reg.read_json_cred()
-            result = self.reg.boosteroidAuth(
-                self.reg.app_auth_images, credentials)
+            result = self.reg.boosteroidAuth(self.reg.app_auth_images, credentials)
             assert result is True
             with allure.step("Attach screenshot"):
-                screenshot_path = self.reg.get_screenshot(
-                    "7_test_boosteroidAuth")
+                screenshot_path = self.reg.get_screenshot("7_test_boosteroidAuth")
                 allure.attach.file(screenshot_path, name="test_boosteroidAuth",
                                    attachment_type=allure.attachment_type.PNG)
         except AssertionError:
-            screenshot_path = self.reg.get_screenshot(
-                "test_boosteroidAuth_failed")
+            screenshot_path = self.reg.get_screenshot("test_boosteroidAuth_failed")
             allure.attach.file(screenshot_path, name="test_boosteroidAuth_failed",
                                attachment_type=allure.attachment_type.PNG)
             raise
