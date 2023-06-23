@@ -118,10 +118,12 @@ class GmailLogin(VideoRec):
                         pyautogui.write(credentials["passw"])
                         if self.click_image(self.new_user_images[5]):
                             pyautogui.write(credentials["conf_pass"])
-                            self.click_image(self.new_user_images[6])
-                            self.findImageAndWait(self.new_user_images[7])
-                            self.click_image(self.new_user_images[8])
-                            message = "New user registration successful"
+                            if self.click_image(self.new_user_images[6]) and self.findImageAndWait(self.new_user_images[7]):
+                                self.click_image(self.new_user_images[8])                                
+                                message = "New user registration successful"                            
+                            else:
+                                success = False
+                                message = "Push confirm and success registration check"
                         else:
                             success = False
                             message = "Confirmation password input failed"
