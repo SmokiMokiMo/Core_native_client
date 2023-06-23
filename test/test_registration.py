@@ -330,19 +330,33 @@ if __name__ == '__main__':
 
 @allure.feature("Gmail Login")
 class TestGmailLogin:
-    reg = None
+    reg = None  
+    
+
+    @classmethod
+    def setup_class(cls):
+        if not cls.reg:
+            cls.reg = GmailLogin()
+        cls.reg.recording = None
+    
+    @classmethod
+    def teardown_class(cls):
+        if cls.reg.recording is not None:
+            cls.reg.stop_threads()
+            cls.reg.stop_video_recording(cls.reg.recording)
 
     @pytest.fixture(autouse=True)
-    def init(self):
+    def video_recording(self):
+        if self.reg.recording is None:
+            self.reg.recording = self.reg.start_video_recording(self.__class__.__name__)
+        yield  # Run the test methods
+        # No need to stop recording here
 
-        if not TestGmailLogin.reg:
-            TestGmailLogin.reg = GmailLogin()
-        self.reg = TestGmailLogin.reg
 
     @allure.story("Test: New user registration and try autorization in application")  
     def test_ClearLetterList(self):
         self.reg.logger.info("Running Test1 -'test_startProcess': launching browser and remove all letters")
-        try:
+        try:            
             result = False           
             if self.reg.setup():
                result = self.reg.removeEmailLetters()            
@@ -355,13 +369,7 @@ class TestGmailLogin:
             screenshot_path = self.reg.get_screenshot("remove_letter_failed")
             allure.attach.file(screenshot_path, name="remove_letter_failed",
                                attachment_type=allure.attachment_type.PNG)
-            raise
-        allure.attach("Expected Result:",
-                      "Running browser, login to gmail accaunt, and in case if list letter isempty, execut next test step.\
-                          If letter list is not empty, remove all letters and close browser")
-        allure.attach(
-            "Summary:", "Test launching browser and remove all letters")
-
+        
     
     def test_startProcess(self):
         self.reg.logger.info("Running Test2 -'test_startProcess': launching application")
