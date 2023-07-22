@@ -69,6 +69,7 @@ class TestAuth:
             result2 = self.reg.boosteroidAuth()
             assert result1 is True
             assert result2 is True
+            
             with allure.step("Attach screenshot"):                                   
                 screenshot_path = self.reg.get_screenshot("test_startProcess")
                 allure.attach.file(screenshot_path, name="Start_application", attachment_type=allure.attachment_type.PNG)

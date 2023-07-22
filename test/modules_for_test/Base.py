@@ -363,34 +363,63 @@ class Base:
         
     def click_write_or_findAndWait(self, file_name: tuple[str, str], write_text: tuple[str, str] = None, find_text: tuple[str, str] = None) -> bool:
         for x in file_name:
-            if write_text is not None:
-                if re.search(find_text[0], x):
-                    if re.search(find_text[1], x):
+            try:
+                if write_text is not None:
+                    if re.search(find_text[0], x):
+                        if re.search(find_text[1], x):
+                            self.click_image(x)
+                            pyautogui.write(write_text[self._counter])                        
+                            self._counter = (
+                                self._counter + 1) % len(write_text)
+                            self.logger.debug(
+                                "Method 'click_write_or_findAndWait': find '%s' in tuple 'find_and_check_games'- Click", x)
+                        else:
+                            self.logger.debug(
+                                "Method 'click_write_or_findAndWait': find '%s' in tuple 'find_and_check_games'- Click", x)
+                            self.click_image(x)
+                    elif not self.findImageAndWait(x):
+                        self.logger.error(
+                            f"\033[31mMethod 'click_write_or_findAndWait' failed on '%s'\033[0m", x)
+                        return False
+                else:
+                    if re.search(find_text[0], x):
                         self.click_image(x)
-                        pyautogui.write(write_text[self._counter])                        
-                        self._counter = (
-                            self._counter + 1) % len(write_text)
-                        self.logger.debug(
+                        self.logger.info(
                             "Method 'click_write_or_findAndWait': find '%s' in tuple 'find_and_check_games'- Click", x)
-                    else:
-                        self.logger.debug(
-                            "Method 'click_write_or_findAndWait': find '%s' in tuple 'find_and_check_games'- Click", x)
-                        self.click_image(x)
-                elif not self.findImageAndWait(x):
-                    self.logger.error(
-                        f"\033[31mMethod 'click_write_or_findAndWait' failed on '%s'\033[0m", x)
-                    return False
-            else:
-                if re.search(find_text[0], x):
-                    self.click_image(x)
-                    self.logger.info(
-                        "Method 'click_write_or_findAndWait': find '%s' in tuple 'find_and_check_games'- Click", x)
-                elif not self.findImageAndWait(x):
-                    self.logger.error(
-                        f"\033[31m'Click_write_or_findAndWait' failed - '%s'\033[0m", x)
-                    return False
+                    elif not self.findImageAndWait(x):
+                        self.logger.error(
+                            f"\033[31m'Click_write_or_findAndWait' failed - '%s'\033[0m", x)
+                        return False
+            except Exception as e:
+                self.logger.error(f"Exception occurred: {e}")
+                return False
         self.logger.info(f"\033[32m'Click_write_or_findAndWait' successful\033[0m")
         return True
 
+    def press_key_combination(self, *keys):
+        """
+        Simulate a key combination press.
+        :param keys: The combination of keys to press, e.g., 'ctrl', 'f2', 'shift', etc.
+        """
+        try:
+            # Convert the keys to lowercase to ensure consistency
+            keys = [key.lower() for key in keys]
+            
+            # Check if 'ctrl' and 'shift' are in the keys list and convert them to their respective pyautogui constants
+            if 'ctrl' in keys:
+                keys[keys.index('ctrl')] = 'ctrlleft'
+            if 'shift' in keys:
+                keys[keys.index('shift')] = 'shiftleft'
 
+            # Join all the keys with '+' to form the combination
+            combination = '+'.join(keys)
+            
+            # Use pyautogui.hotkey() to press the key combination
+            pyautogui.hotkey(combination)
+            self.logger.info(f"Key combination '{combination}' pressed.")
+            
+        except ValueError:
+            self.logger.error(f"Invalid key combination." )
+        except Exception as e:
+            self.logger.error(f"An error occurred: {e}")
     
