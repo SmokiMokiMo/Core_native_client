@@ -99,7 +99,7 @@ class UpdateApp(VideoRec):
         return ver_app_defore_update, ver_app_after_updating
 
 
-@allure.feature("Gmail Login")
+@allure.feature("Update app")
 class TestUpdateApp:
     up = None
 
