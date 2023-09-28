@@ -115,7 +115,9 @@ class TestUpdateApp:
     def test_environment_preparation(self):
         self.reg.logger.info(
             "\tRunning Test1 -'test_environment_preparation': close 'Boosteroid' app -> remove them from os -> update app\n")
-        try:           
+        recording = None
+        try:
+            recording = self.reg.start_video_recording(self.__class__.__name__)           
             result = self.up.environment_preparation() 
             result2 = self.up.compare_app_ver()
             assert result is True
@@ -131,6 +133,11 @@ class TestUpdateApp:
             allure.attach.file(screenshot_path, name="update_app_failed",
                                attachment_type=allure.attachment_type.PNG)
             raise
+        finally:
+            if recording is not None:
+                    self.reg.stop_threads()
+                    self.reg.stop_video_recording(recording)
+
         allure.attach("Expected Result:",
                       "Boosteroid application will be closed, Boosteroid application will be \
                         removed, after removing old version application will be installed and updated to later version")
