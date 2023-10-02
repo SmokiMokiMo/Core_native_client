@@ -4,8 +4,8 @@ venv/*
 .git
 __pycache__
 test/__pycache__/*
-logs/
-logs_test/
-screenshot/
+logs/*
+logs_test/*
+screenshot/*
 test/modules_for_test/__pycache__/*
  test/__pycache__/*
