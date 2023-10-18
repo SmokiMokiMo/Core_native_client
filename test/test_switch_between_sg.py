@@ -5,6 +5,7 @@ from modules_for_test.video_record import VideoRec
 import pytest
 import re
 import time
+import getpass
 
 class NetWork(VideoRec):    
 
@@ -35,11 +36,11 @@ class NetWork(VideoRec):
         self.searching_field_test: tuple[str, str] = ("dota",)
 
         self.ip_addr: dict = {
-            "185.2.108.5": "185.2.108.6",
-            "185.2.108.6": "185.2.108.5"
+            "185.2.108.6": "185.2.108.5",
+            "185.2.108.5": "185.2.108.6"
         }
-
-        self.target_ip:str = "192.168.122.129"
+        self.root_pass:str = "123123123"
+        self.target_ip:str = "192.168.122.206"
         self.network_interface: str = "enp1s0"
         self._counter: int = 0
         self.numbers_of_switches: int = 0
@@ -54,16 +55,20 @@ class NetWork(VideoRec):
         try:            
             command = ["sudo", "tcpdump", "-i", self.network_interface, "-n", self.protocol_type.lower(), "and", "host", self.target_ip]
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            print(process)
+            
 
             # Read the output line by line as it becomes available
-            while process.poll() is None:
+            while process.poll() is None and self.stop_capture is False:
                 line = process.stdout.readline().strip()
                 if line:
                     # Process each line as needed
                     protocol, src_ip = self.process_packet_line(line)
                     self.check_ip_block_unblock(protocol=protocol, src_ip=src_ip)
                     time.sleep(1)
+                else:
+                    self.logger.error(f"Method 'packet_handler': error occurred. Exit code: {line}")
+                    break
+                return False
 
             # Get the exit code
             exit_code = process.poll()
@@ -101,40 +106,37 @@ class NetWork(VideoRec):
                 self.logger.error("Method 'process_packet_line': No match found.")
                 return False
         
-    def check_ip_block_unblock(self, protocol: str=None, src_ip: str=None):
-        if protocol or src_ip is None:
-            self.logger.error(f"Method 'block_ip': protocol is: {protocol}, src_ip is: {src_ip}")
-        for hostname, unblocked in self.ip_addr.items():
-            counter_to_stop = 0
-            circle_stop = False
-            if src_ip == hostname:
-                self._counter += 1
-                self.logger.info(f"Method 'block_ip': counter is: {self._counter}")
-                if self._counter == 20:
-                    self.logger.info(f"Method 'block_ip': reset counter - {self._counter}")
-                    if src_ip != self.previev_ip:
-                        self.logger.info(f"Method 'block_ip': actual values: {self.previev_ip}")
-                        if not self.check_iptables_stdout(src_ip):
-                            self.numbers_of_switches += 1
-                            self.logger.info(f"Method 'block_ip': try block on {src_ip}")
-                            self.reset_all_iptable_rules()
-                            self.block_ip(src_ip)  # Block IP using iptables
-                            self.previev_ip = src_ip
-                        elif self.check_iptables_stdout(src_ip):
-                            self.numbers_of_switches += 1
-                            self.logger.info(f"Method 'block_ip': try block: IP: {src_ip} exists in Iptables, Block IP: {unblocked}")
-                            self.reset_all_iptable_rules()
-                            self.block_ip(unblocked)
-                            self.previev_ip = src_ip
-                    else:
-                        counter_to_stop += 1
-                        self.logger.info(f"Method 'block_ip': actual ip-{src_ip}, previes-{self.previev_ip}" )
-                        if counter_to_stop == 3:
-                            circle_stop = True
-                    self.logger.info(f"Method 'block_ip': reset counter-{counter_to_stop}")
-                    self._counter = 0
-                if circle_stop is True:
-                    return False
+    def check_ip_block_unblock(self, protocol: str=None, src_ip: str=None) -> bool:
+        # if protocol or src_ip is None:                       
+        #     self.logger.error(f"Method 'check_ip_block_unblock': protocol is: {protocol}, src_ip is: {src_ip}")
+        if not self.stop_capture:
+            for hostname, unblocked in self.ip_addr.items():
+                    if src_ip == hostname:
+                        self._counter += 1
+                        self.logger.info(f"Counter is: {self._counter}")
+                        if self._counter == 20:
+                            self.logger.debug("Reset counter")
+                            # Try block
+                            if not self.check_iptables_stdout(src_ip):
+                                self.numbers_of_switches += 1
+                                self.logger.debug(f"Try block on {src_ip}")
+                                self.reset_all_iptable_rules()
+                                self.block_ip(src_ip)  # Block IP using iptables
+                            elif self.check_iptables_stdout(src_ip):
+                                self.numbers_of_switches += 1
+                                self.logger.debug(f"Try block: IP: {src_ip} exists in Iptables -> Reset rules for Blocked IP -> Block IP: {unblocked}")
+                                self.reset_all_iptable_rules()
+                                self.block_ip(unblocked)
+                            self._counter = 0
+
+                    if self.numbers_of_switches == self.switch_limit + 1:
+                        self.send_slack_message(f"The switch limit of {self.switch_limit} has been reached!")
+                        self.logger.debug(f"The switch limit of {self.switch_limit} has been reached!")
+                        self.reset_all_iptable_rules()
+                        self.stop_capture = True
+                        return True, self.stop_capture
+        else:
+            return False
  
     def check_iptables_stdout(self, ip) -> bool:
         command = ['sudo', '-S', 'iptables', '-n', '-L']
@@ -168,24 +170,33 @@ class NetWork(VideoRec):
             return False     
 
     def block_ip(self, ip):
-        ckeck: bool = self.check_iptables_stdout(ip)
-        if ckeck is True:
-            self.logger.info(f"Method block_ip: ip-{ip} already exists in Iptables list")
-        else:
-            self.logger.info(f"Method 'block_ip':{ip}")
-            subprocess.run(['iptables', '-A', 'INPUT', '-s', ip, '-p', self.protocol_type, '-j', 'DROP'], check=True)
+        try:
+            command = ['sudo', 'iptables', '-A', 'INPUT', '-s', ip, '-p', self.protocol_type, '-j', 'DROP']
+            ckeck: bool = self.check_iptables_stdout(ip)
+            if ckeck is True:
+                self.logger.info(f"Method block_ip: ip-{ip} already exists in Iptables list")
+            else:
+                self.logger.info(f"Method 'block_ip':{ip}")
+                subprocess.run(command, input=self.root_pass.encode('utf-8') + b'\n', check=True)
+        except Exception as e:
+            self.logger.error(f"Method 'block_ip': {e}")        
 
+        
     def unblock_ip(self, ip):
-        ckeck: bool = self.check_iptables_stdout(ip)
-        if ckeck is False:
-            self.logger.info(f"Method unblock_ip: rule for ip-{ip} does not exist")       
-        else:
-            self.logger.info(f"Method 'unblock_ip':{ip}")
-            try:
-                subprocess.run(['iptables', '-D', 'INPUT', '-s', ip, '-p', self.protocol_type, '-j', 'DROP'], check=True)
-            except subprocess.CalledProcessError as e:
-                self.logger.error(f"An error occurred while unblocking IP: {ip}")
-                self.logger.error(f"Error message: {e}")
+        try:
+            ckeck: bool = self.check_iptables_stdout(ip)
+            if ckeck is False:
+                self.logger.info(f"Method unblock_ip: rule for ip-{ip} does not exist")       
+            else:
+                self.logger.info(f"Method 'unblock_ip':{ip}")
+                try:
+                    subprocess.run(['iptables', '-D', 'INPUT', '-s', ip, '-p', self.protocol_type, '-j', 'DROP'], check=True)
+                except subprocess.CalledProcessError as e:
+                    self.logger.error(f"An error occurred while unblocking IP: {ip}")
+                    self.logger.error(f"Error message: {e}")
+        except Exception as e:
+            print(f"Method 'unblock_ip':{e}")
+            
 
     def start_capture(self) -> bool:
         try:            
@@ -210,22 +221,22 @@ class NetWork(VideoRec):
             print(f"An error occurred: {ex}")
             return False     
             
-    def send_slack_message(self, message):
+    def send_slack_message(self, message) -> bool:
         try:
             payload = {"text": message}
             response = requests.post(self.token, json=payload)
 
             if response.status_code == 200:
                 self.logger.info("Message sent successfully to Slack!")
+                return True
             else:
                 self.logger.info("Failed to send message to Slack.")
+                return False
         except requests.exceptions.RequestException as e:
-            self.logger.error(f"An error occurred while sending the message: {str(e)}")
+            self.logger.error(f"An error occurred while sending the message: {e}")
+            return False
 
-up = NetWork()
-up.packet_handler()
 
-"""
 
 @allure.feature("Switch between SG")
 class TestSwitchBetweenSg:
@@ -245,17 +256,16 @@ class TestSwitchBetweenSg:
             "\tRunning Test -'Switch between SG': running app 'Boosteroid' -> start session -> switching between SG\n")
         recording = None
         try:
-            #recording = self.reg.start_video_recording(self.__class__.__name__)            
-            #result = self.reg.startProcess(self.reg.run_app)
-            #result1 = self.reg.boosteroidAuth(file_name=self.up.auth_app_images, credentials=self.up.credentials)
-            #result2 = self.reg.click_write_or_findAndWait(self.up.prepare_for_the_test,
-            #            write_text=self.up.searching_field_test , find_text=self.up.card_check_text)
-            result3 = self.up.packet_handler()            
-            #assert result is True
-            #assert result1 is True
-            #assert result2 is True
-            assert result3 is True
-            #assert result2 is True
+            # recording = self.reg.start_video_recording(self.__class__.__name__)            
+            # result = self.reg.startProcess(self.reg.run_app)
+            # assert result is True
+            # result1 = self.reg.boosteroidAuth(file_name=self.up.auth_app_images, credentials=self.up.credentials)
+            # assert result1 is True
+            # result2 = self.reg.click_write_or_findAndWait(self.up.prepare_for_the_test,
+            #             write_text=self.up.searching_field_test , find_text=self.up.card_check_text)
+            # assert result2 is True
+            result3 = self.up.packet_handler()           
+            assert result3 is True            
 
             with allure.step("Attach screenshot"):
                 screenshot_path = self.reg.get_screenshot(
@@ -278,7 +288,7 @@ class TestSwitchBetweenSg:
         allure.attach(
             "Summary:", "Test 'Switch between SG': running app 'Boosteroid' -> start session -> switching between SG")
 
-
+"""
 
 if __name__ == '__main__':
     start_time = time.time()
