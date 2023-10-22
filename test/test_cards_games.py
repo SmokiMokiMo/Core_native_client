@@ -23,8 +23,8 @@ class CardsGames(VideoRec):
         self.path_to_images: str = "/home/user/Test_Native_Client/images/games_cards"
 
         self.credentials_app: dict[str, str] = {
-            "email": "i.zayats@boosteroid.com",
-            "passw": "123123123"
+            "email": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "passw": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
         }
         self.auth_app_images: tuple[str, str] = (
             "3_email_click.png", "4_pass_click.png", "remember_my_click.png", "sing_in_click.png", "whats_new.png"

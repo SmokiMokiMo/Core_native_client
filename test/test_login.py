@@ -12,8 +12,8 @@ class Auth(VideoRec):
 
         #Data for the test
         self.credentials: dict[str, str] = {
-            "email": "i.zayats@boosteroid.com",
-            "passw": "123123123"
+            "email": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "passw": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
             }
         self.clickable_images: tuple[str, ...] = (
                 "auth.png", "email.png", "password.png", "remember.png", "log_in.png", "change_log.png",

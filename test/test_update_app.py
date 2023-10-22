@@ -12,8 +12,8 @@ class UpdateApp(VideoRec):
         super().__init__()
 
         self.credentials_app: dict[str, str] = {
-            "email": "i.zayats@boosteroid.com",
-            "passw": "123123123"
+            "email": "XXXXXXXXXXXXXXXXXXXXXX",
+            "passw": "XXXXXXXXXXXXXXXXXXXXXX"
         }
 
         self.path_to_images: str = "/home/user/Test_Native_Client/images/update_app"

@@ -7,14 +7,14 @@ import re
 import time
 import getpass
 
-class NetWork(VideoRec):    
+class NetWork(VideoRec):
 
     def __init__(self):
         super().__init__()
         
         self.credentials: dict[str, str] = {
-            "email": "i.zayats@boosteroid.com",
-            "passw": "123123123"
+            "email": "xxxxxxxxx",
+            "passw": "xxxxxxxxx"
             }
         
         self.card_check_text: tuple[str, str] = ("click", "search_line_click.png")   
@@ -48,8 +48,8 @@ class NetWork(VideoRec):
         self.protocol_type: str = 'UDP'
         self.switch_limit: int = 5
         self.previev_ip: str = None
-        self.token = "https://hooks.slack.com/services/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"  # Replace with your Slack API token
-        self.channel = "C05H1FS7B1U"  # Replace with your channel or user ID
+        self.token = "XXXXXXXXXXXXXXXXXXX"  
+        self.channel = "XXXXXXXXXXXXXXXXXX" 
 
     def packet_handler(self):
         try:            
@@ -61,7 +61,6 @@ class NetWork(VideoRec):
             while process.poll() is None and self.stop_capture is False:
                 line = process.stdout.readline().strip()
                 if line:
-                    # Process each line as needed
                     protocol, src_ip = self.process_packet_line(line)
                     self.check_ip_block_unblock(protocol=protocol, src_ip=src_ip)
                     time.sleep(1)
@@ -152,7 +151,6 @@ class NetWork(VideoRec):
                 
             return False
         except subprocess.CalledProcessError as e:
-            # Handle any errors that occurred during the subprocess execution
             print(f"An error occurred while running the command: {e}")
             return False
     

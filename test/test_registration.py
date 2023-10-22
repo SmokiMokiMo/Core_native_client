@@ -20,13 +20,13 @@ class GmailLogin(VideoRec):
     def __init__(self) -> None:
         super().__init__()
         self.credentials_email: dict[str, str] = {
-            "email": "i.zayats@boosteroid.com",
-            "passw": "9379992Qwer"
+            "email": "xxxxxxxxxxx",
+            "passw": "xxxxxxxxxxx"
         }
         self.new_credentials_email: dict[str, str] = {
-            "email": "i.zayats+27@boosteroid.com",
-            "passw": "123123123",
-            "conf_pass": "123123123"
+            "email": "xxxxxxxxx",
+            "passw": "xxxxxxxxx",
+            "conf_pass": "xxxxxxxxxxx"
         }
         self.mail_images: tuple[str, str] = (
             "seln4_accep_auth_click.png", "seln5_accept_auth_click.png", "seln6_latter_click.png", "seln7_act_acn_click.png"
